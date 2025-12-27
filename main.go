@@ -11,8 +11,21 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
-
+//var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+var upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
+    CheckOrigin: func(r *http.Request) bool {
+        origin := r.Header.Get("Origin")
+        allowedOrigins := []string{"https://color-the-number-2.onrender.com", "http://localhost:8088"}
+        for _, allowed := range allowedOrigins {
+            if origin == allowed {
+                return true
+            }
+        }
+        return false
+    },
+}
 type Player struct {
 	ID    string          `json:"id"`
 	Name  string          `json:"name"`
@@ -152,3 +165,4 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		roomsMu.Unlock()
 	}
 }
+
